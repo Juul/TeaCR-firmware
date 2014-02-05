@@ -115,7 +115,7 @@ int pid_window_size = 5000;
 unsigned long pid_window_start_time;
 
 // PID AutoTune stuff
-double aTuneStep = 20, aTuneNoise = 1;
+double aTuneStep = pid_window_size, aTuneNoise = 1;
 unsigned int aTuneLookBack = 10;
 PID_ATune aTune(&pid_input, &pid_output);
 byte ATuneModeRemember = 0;
@@ -274,8 +274,7 @@ void loop(void) {
   }
 
   timenow = millis();
-  
-  myPID.Compute();
+ 
 
   if(tuning) {
     byte val = (aTune.Runtime());
@@ -292,19 +291,24 @@ void loop(void) {
       myPID.SetTunings(kp, ki, kd);
       AutoTuneHelper(false);
       Serial.write("Tuning complete!\n");
+      Serial.write("  kp: "); Serial.write(kp); Serial.write("\n");
+      Serial.write("  ki: "); Serial.write(ki); Serial.write("\n");
+      Serial.write("  kd: "); Serial.write(kd); Serial.write("\n");
     }
   } else { // not tuning, so run normal PID control
-    // PID stuff
-    if(timenow - pid_window_start_time > pid_window_size) { //time to shift the Relay Window
-      pid_window_start_time += pid_window_size;
-    }
-  
-    if(pid_output > timenow - pid_window_start_time) {
-      digitalWrite(heat_ctrl_pin, HIGH);
-    } else {
-      digitalWrite(heat_ctrl_pin, LOW);
-    }
+    myPID.Compute();
   }
+  
+  // PID stuff
+  if(timenow - pid_window_start_time > pid_window_size) { //time to shift the Relay Window
+    pid_window_start_time += pid_window_size;
+  }
+  
+  if(pid_output > timenow - pid_window_start_time) {
+    digitalWrite(heat_ctrl_pin, HIGH);
+  } else {
+    digitalWrite(heat_ctrl_pin, LOW);
+  }  
   
   if(timenow - last_print > 1000) {
     Serial.print("Temp: ");
