@@ -290,10 +290,10 @@ void loop(void) {
       kd = aTune.GetKd();
       myPID.SetTunings(kp, ki, kd);
       AutoTuneHelper(false);
-      Serial.write("Tuning complete!\n");
-      Serial.write("  kp: "); Serial.write(kp); Serial.write("\n");
-      Serial.write("  ki: "); Serial.write(ki); Serial.write("\n");
-      Serial.write("  kd: "); Serial.write(kd); Serial.write("\n");
+      Serial.print("Tuning complete!\n");
+      Serial.print("  kp: "); Serial.print(kp); Serial.print("\n");
+      Serial.print("  ki: "); Serial.print(ki); Serial.print("\n");
+      Serial.print("  kd: "); Serial.print(kd); Serial.print("\n");
     }
   } else { // not tuning, so run normal PID control
     myPID.Compute();
